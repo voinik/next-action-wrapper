@@ -52,6 +52,10 @@
         "tsup": "^8.0.2",
         "typescript": "^5.4.2"
     },
+    "repository": {
+		"type": "git",
+		"url": "https://github.com/voinik/next-action-wrapper.git"
+	},
     "peerDependencies": {
         "next": ">= 14.0.0",
         "react": ">= 18.2.0"
