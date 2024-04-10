@@ -23,6 +23,11 @@
             ]
         }
     },
+    "author": "Victor Panteleev",
+	"license": "MIT",
+	"engines": {
+		"node": ">=18.17"
+	},
     "scripts": {
         "lint": "tsc && eslint --ext ts .",
         "build": "tsup",
@@ -51,7 +56,17 @@
         "next": ">= 14.0.0",
         "react": ">= 18.2.0"
     },
-    "keywords": [],
-    "author": "",
-    "license": "ISC"
+    "keywords": [
+		"next",
+		"nextjs",
+		"react",
+		"rsc",
+		"react server components",
+		"mutation",
+		"action",
+		"actions",
+		"react actions",
+		"next actions",
+		"server actions"
+	]
 }
