@@ -23,7 +23,7 @@ jobs:
         with:
           node-version: "20"
           cache: "pnpm"
-      - run: pnpm ci
+      - run: pnpm install --frozen-lockfile
       - run: pnpm run lint -- --filter=next-action-wrapper
 
   CD:
@@ -42,7 +42,7 @@ jobs:
         with:
           node-version: "20"
           cache: "pnpm"
-      - run: pnpm ci
+      - run: pnpm install --frozen-lockfile
       - run: pnpm run build -- --filter=next-action-wrapper
       - name: Release
         env:
