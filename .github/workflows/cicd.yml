@@ -23,8 +23,8 @@ jobs:
         with:
           node-version: "20"
           cache: "pnpm"
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm run lint -- --filter=next-action-wrapper
+      - run: pnpm i --frozen-lockfile
+      - run: pnpm lint --filter next-action-wrapper
 
   CD:
     if: ${{ github.ref == 'refs/heads/main' }}
@@ -42,10 +42,10 @@ jobs:
         with:
           node-version: "20"
           cache: "pnpm"
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm run build -- --filter=next-action-wrapper
+      - run: pnpm i --frozen-lockfile
+      - run: pnpm build --filter next-action-wrapper
       - name: Release
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: pnpm run deploy -- --filter=next-action-wrapper
+        run: pnpm deploy --filter next-action-wrapper
