@@ -11,7 +11,7 @@ module.exports = {
     "plugin:@typescript-eslint/stylistic-type-checked",
   ],
 
-  extends: ["eslint:recommended", "prettier"],
+  extends: ["eslint:recommended"],
   globals: {
     React: true,
     JSX: true,
