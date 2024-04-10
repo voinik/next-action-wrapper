@@ -1,20 +1,33 @@
 {
-  "name": "next-action-wrapper",
-  "private": true,
-  "scripts": {
-    "build": "turbo build",
-    "dev": "turbo dev",
-    "lint": "turbo lint",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\""
-  },
-  "devDependencies": {
-    "@repo/eslint-config": "workspace:*",
-    "@repo/typescript-config": "workspace:*",
-    "prettier": "^3.2.5",
-    "turbo": "latest"
-  },
-  "packageManager": "pnpm@8.9.0",
-  "engines": {
-    "node": ">=18"
-  }
+    "name": "next-action-wrapper-monorepo",
+    "description": "next-action-wrapper monorepo",
+    "author": "Victor Panteleev",
+    "license": "MIT",
+    "private": true,
+    "scripts": {
+        "prepare": "is-ci || husky install",
+        "dev": "turbo dev",
+        "example": "turbo run dev --filter=example-app",
+        "lint": "turbo run lint",
+        "build": "turbo run build",
+        "build:lib": "turbo run build --filter=next-safe-action",
+        "deploy": "turbo run deploy",
+        "format": "prettier --write \"**/*.{ts,tsx,md}\""
+    },
+    "devDependencies": {
+        "@repo/eslint-config": "workspace:*",
+        "@repo/prettier-config": "workspace:*",
+        "@repo/typescript-config": "workspace:*",
+        "prettier": "^3.2.5",
+        "turbo": "latest"
+    },
+    "packageManager": "pnpm@8.9.0",
+    "engines": {
+        "node": ">=18"
+    },
+    "dependencies": {
+        "husky": "^9.0.11",
+        "is-ci": "^3.0.1",
+        "semantic-release": "^23.0.8"
+    }
 }

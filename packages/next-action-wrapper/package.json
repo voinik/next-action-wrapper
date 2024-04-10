@@ -1,0 +1,59 @@
+{
+    "name": "next-action-wrapper",
+    "version": "0.1.0",
+    "description": "A wrapper for typesafe and customizable server actions for your Next.js app router projects.",
+    "private": false,
+    "main": "./dist/index.mjs",
+    "module": "./dist/index.mjs",
+    "types": "./dist/index.d.mts",
+    "files": [
+        "dist"
+    ],
+    "exports": {
+        ".": "./dist/index.mjs",
+        "./hooks": "./dist/hooks.mjs"
+    },
+    "typesVersions": {
+        "*": {
+            ".": [
+                "./dist/index.d.mts"
+            ],
+            "hooks": [
+                "./dist/hooks.d.mts"
+            ]
+        }
+    },
+    "scripts": {
+        "scripts": {
+            "lint": "tsc && eslint --ext ts .",
+            "build": "tsup",
+            "deploy": "semantic-release"
+        }
+    },
+    "devDependencies": {
+        "@repo/eslint-config": "workspace:*",
+        "@repo/typescript-config": "workspace:*",
+        "@repo/prettier-config": "workspace:*",
+        "@types/eslint": "^8.56.2",
+        "@types/node": "^20.11.20",
+        "@types/react": "^18.2.57",
+        "@types/react-dom": "^18.2.19",
+        "@typescript-eslint/eslint-plugin": "^7.1.1",
+        "@typescript-eslint/parser": "^7.1.1",
+        "eslint": "^8.57.0",
+        "eslint-config-next": "^14.1.3",
+        "next": "^14.1.4",
+        "prettier": "^3.2.5",
+        "react": "^18.2.0",
+        "server-only": "^0.0.1",
+        "tsup": "^8.0.2",
+        "typescript": "^5.4.2"
+    },
+    "peerDependencies": {
+        "next": ">= 14.0.0",
+        "react": ">= 18.2.0"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC"
+}
