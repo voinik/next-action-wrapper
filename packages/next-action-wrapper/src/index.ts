@@ -34,7 +34,6 @@ export function createActionClient(options?: CreateActionClientOptions) {
     ): WrappedServerAction<ActionInput, ActionReturnType> {
         return async function action(actionInput: ActionInput): Promise<ActionServerOutput<ActionReturnType>> {
             try {
-                console.log('hello in server.ts');
                 const data = await serverAction(actionInput);
                 return { resultType: 'success', data };
             } catch (e) {
