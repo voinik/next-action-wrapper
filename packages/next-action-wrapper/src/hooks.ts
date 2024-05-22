@@ -61,12 +61,13 @@ export function useAction<const ActionInput, const ActionReturnType>(
                 result = await action(input);
 
                 if (result.resultType === ACTION_RESULT_TYPE.SUCCESS) {
-                    await cb.current?.onSuccess?.(result, input);
+                    await cb.current?.onSuccess?.(result.data, input);
+                    await cb.current?.onSettled?.(result.data, null, null, input);
                 } else if (result.resultType === ACTION_RESULT_TYPE.SERVER_ERROR) {
                     await cb.current?.onError?.(result.error, result.resultType, input);
+                    await cb.current?.onSettled?.(undefined, result.error, result.resultType, input);
                 }
 
-                await cb.current?.onSettled?.(result, null, null, input);
                 setResult(result ?? defaultHookResult);
             } catch (e) {
                 const result = {

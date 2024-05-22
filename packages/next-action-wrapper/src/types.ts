@@ -52,14 +52,14 @@ export const ACTION_HOOK_STATUS = {
 export type ActionHookStatus = ObjectValues<typeof ACTION_HOOK_STATUS>;
 
 export type HookCallbacks<ActionInput, ActionReturnType> = {
-	onSuccess?: (data: ActionHookOutput<ActionReturnType>, input: ActionInput) => MaybePromise<void>;
+	onSuccess?: (data: ActionReturnType, input: ActionInput) => MaybePromise<void>;
 	onError?: (
 		error: ActionErrorType,
         errorType: ActionHookErrorOutputs['resultType'],
 		input: ActionInput,
 	) => MaybePromise<void>;
 	onSettled?: (
-		result: ActionHookOutput<ActionReturnType> | undefined,
+		result: ActionReturnType | undefined,
         error: ActionErrorType | null,
         errorType: ActionHookErrorOutputs['resultType'] | null,
 		input: ActionInput,

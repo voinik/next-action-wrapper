@@ -4,12 +4,13 @@
   "private": true,
   "files": [
     "library.js",
-    "next.js",
+    "next.mjs",
     "react-internal.js"
   ],
   "devDependencies": {
-    "@typescript-eslint/parser": "^7.1.0",
     "@typescript-eslint/eslint-plugin": "^7.1.0",
+    "@typescript-eslint/parser": "^7.1.0",
+    "eslint-plugin-only-warn": "^1.1.0",
     "typescript": "^5.3.3"
   }
 }
