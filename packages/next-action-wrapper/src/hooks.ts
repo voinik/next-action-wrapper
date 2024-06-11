@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
     type WrappedServerAction,
     type ActionHookOutput,
@@ -39,25 +39,17 @@ function useActionCallbacks<const ActionInput, const ActionReturnType>(
     result: ActionHookOutput<ActionReturnType>,
     callbacks?: HookCallbacks<ActionInput, ActionReturnType>,
 ) {
-    const onSuccessRef = useRef(callbacks?.onSuccess);
-    const onErrorRef = useRef(callbacks?.onError);
-    const onSettledRef = useRef(callbacks?.onSettled);
-
     useEffect(() => {
-        const onSuccess = onSuccessRef.current;
-        const onError = onErrorRef.current;
-        const onSettled = onSettledRef.current;
-
         const executeCallbacks = async () => {
             if (result.resultType === ACTION_RESULT_TYPE.SUCCESS) {
-                await onSuccess?.(result.data, input);
-                await onSettled?.(result.data, null, null, input);
+                await callbacks?.onSuccess?.(result.data, input);
+                await callbacks?.onSettled?.(result.data, null, null, input);
             } else if (result.resultType === ACTION_RESULT_TYPE.SERVER_ERROR) {
-                await onError?.(result.error, result.resultType, input);
-                await onSettled?.(undefined, result.error, result.resultType, input);
+                await callbacks?.onError?.(result.error, result.resultType, input);
+                await callbacks?.onSettled?.(undefined, result.error, result.resultType, input);
             } else if (result.resultType === ACTION_RESULT_TYPE.FETCH_ERROR) {
-                await onError?.(result.error, result.resultType, input);
-                await onSettled?.(undefined, result.error, result.resultType, input);
+                await callbacks?.onError?.(result.error, result.resultType, input);
+                await callbacks?.onSettled?.(undefined, result.error, result.resultType, input);
             }
         };
 
