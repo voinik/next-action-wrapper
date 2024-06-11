@@ -1,10 +1,5 @@
 import { isNotFoundError } from 'next/dist/client/components/not-found';
-import {
-    type ActionServerOutput,
-    type MaybePromise,
-    type ServerAction,
-    type WrappedServerAction,
-} from './types';
+import { type ActionServerOutput, type MaybePromise, type ServerAction, type WrappedServerAction } from './types';
 import { DEFAULT_SERVER_ERROR, isError } from './utils';
 import { isRedirectError } from 'next/dist/client/components/redirect';
 
@@ -30,7 +25,7 @@ export function createActionClient(options?: CreateActionClientOptions) {
     const serverErrorInterceptor = options?.serverErrorInterceptor ?? (() => DEFAULT_SERVER_ERROR);
 
     function actionBuilder<const ActionInput = void, const ActionReturnType = unknown>(
-        serverAction: ServerAction<ActionInput, ActionReturnType>
+        serverAction: ServerAction<ActionInput, ActionReturnType>,
     ): WrappedServerAction<ActionInput, ActionReturnType> {
         return async function action(actionInput: ActionInput): Promise<ActionServerOutput<ActionReturnType>> {
             try {

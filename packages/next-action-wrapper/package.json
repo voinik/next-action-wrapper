@@ -24,12 +24,14 @@
         }
     },
     "author": "Victor Panteleev",
-	"license": "MIT",
-	"engines": {
-		"node": ">=18.17"
-	},
+    "license": "MIT",
+    "engines": {
+        "node": ">=18.17"
+    },
     "scripts": {
         "lint": "tsc && eslint --ext ts .",
+        "prettify": "prettier \"./**/*.{js,jsx,ts,tsx,json,css,scss,md}\" --check",
+        "prettify:fix": "prettier \"./**/*.{js,jsx,ts,tsx,json,css,scss,md}\" --write",
         "build": "tsup",
         "deploy": "semantic-release"
     },
@@ -53,24 +55,24 @@
         "typescript": "^5.4.2"
     },
     "repository": {
-		"type": "git",
-		"url": "https://github.com/voinik/next-action-wrapper.git"
-	},
+        "type": "git",
+        "url": "https://github.com/voinik/next-action-wrapper.git"
+    },
     "peerDependencies": {
         "next": ">= 14.0.0",
         "react": ">= 18.2.0"
     },
     "keywords": [
-		"next",
-		"nextjs",
-		"react",
-		"rsc",
-		"react server components",
-		"mutation",
-		"action",
-		"actions",
-		"react actions",
-		"next actions",
-		"server actions"
-	]
+        "next",
+        "nextjs",
+        "react",
+        "rsc",
+        "react server components",
+        "mutation",
+        "action",
+        "actions",
+        "react actions",
+        "next actions",
+        "server actions"
+    ]
 }
