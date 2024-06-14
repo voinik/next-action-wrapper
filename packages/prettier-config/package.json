@@ -2,10 +2,8 @@
   "name": "@repo/prettier-config",
   "version": "0.0.0",
   "private": true,
-  "files": [
-    "global-config.cjs"
-  ],
-  "devDependencies": {
-    "prettier": "^3.2.5"
+  "type": "module",
+  "exports": {
+    "./prettier.config": "./prettier.config.mjs"
   }
 }

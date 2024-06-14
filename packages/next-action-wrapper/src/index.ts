@@ -1,7 +1,8 @@
 import { isNotFoundError } from 'next/dist/client/components/not-found';
+import { isRedirectError } from 'next/dist/client/components/redirect';
+
 import { type ActionServerOutput, type MaybePromise, type ServerAction, type WrappedServerAction } from './types';
 import { DEFAULT_SERVER_ERROR, isError } from './utils';
-import { isRedirectError } from 'next/dist/client/components/redirect';
 
 type CreateActionClientOptions = {
     handleServerErrorLogging?: (error: Error) => MaybePromise<void>;
@@ -19,6 +20,7 @@ export function createActionClient(options?: CreateActionClientOptions) {
     const handleServerErrorLogging =
         options?.handleServerErrorLogging ??
         (e => {
+            // eslint-disable-next-line no-console
             console.error('Action error: ', e.message);
         });
 
@@ -37,6 +39,7 @@ export function createActionClient(options?: CreateActionClientOptions) {
                 }
 
                 if (!isError(e)) {
+                    // eslint-disable-next-line no-console
                     console.warn('Could not handle server error. Not an instance of Error: ', e);
                     return { resultType: 'serverError', error: DEFAULT_SERVER_ERROR };
                 }

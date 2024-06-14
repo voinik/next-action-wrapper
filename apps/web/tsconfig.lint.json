@@ -1,0 +1,16 @@
+{
+  "extends": "@repo/typescript-config/nextjs.json",
+  "compilerOptions": {
+    "outDir": "dist"
+  },
+  "include": [
+    "src",
+    "./tsup.config.ts",
+    "./prettier.config.mjs",
+    "eslint.config.mjs",
+    "eslint.config.mjs",
+    "next.config.js",
+    "next-env.d.ts"
+  ],
+  "exclude": ["node_modules", "dist"]
+}

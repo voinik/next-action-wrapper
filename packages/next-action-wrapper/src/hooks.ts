@@ -1,16 +1,17 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
-import {
-    type WrappedServerAction,
-    type ActionHookOutput,
-    ACTION_HOOK_STATUS,
-    type ActionHookStatus,
-    ACTION_RESULT_TYPE,
-    type HookCallbacks,
-} from './types';
-import { isRedirectError } from 'next/dist/client/components/redirect';
 import { isNotFoundError } from 'next/dist/client/components/not-found';
+import { isRedirectError } from 'next/dist/client/components/redirect';
+import { useCallback, useEffect, useState } from 'react';
+
+import {
+    ACTION_HOOK_STATUS,
+    ACTION_RESULT_TYPE,
+    type ActionHookOutput,
+    type ActionHookStatus,
+    type HookCallbacks,
+    type WrappedServerAction,
+} from './types';
 import { isError } from './utils';
 
 const defaultErrorMessage = 'Something went wrong';
@@ -37,23 +38,29 @@ function getActionStatus<const ActionReturnType>(
 function useActionCallbacks<const ActionInput, const ActionReturnType>(
     input: ActionInput,
     result: ActionHookOutput<ActionReturnType>,
+    setCallbacksAreExecuting?: React.Dispatch<React.SetStateAction<ActionHookStatus>>,
     callbacks?: HookCallbacks<ActionInput, ActionReturnType>,
 ) {
     useEffect(() => {
         const executeCallbacks = async () => {
             if (result.resultType === ACTION_RESULT_TYPE.SUCCESS) {
+                setCallbacksAreExecuting?.(ACTION_HOOK_STATUS.EXECUTING);
                 await callbacks?.onSuccess?.(result.data, input);
                 await callbacks?.onSettled?.(result.data, null, null, input);
-            } else if (result.resultType === ACTION_RESULT_TYPE.SERVER_ERROR) {
+                setCallbacksAreExecuting?.(ACTION_HOOK_STATUS.SUCCEEDED);
+            } else if (result.resultType === ACTION_RESULT_TYPE.SERVER_ERROR || result.resultType === ACTION_RESULT_TYPE.FETCH_ERROR) {
+                setCallbacksAreExecuting?.(ACTION_HOOK_STATUS.EXECUTING);
                 await callbacks?.onError?.(result.error, result.resultType, input);
                 await callbacks?.onSettled?.(undefined, result.error, result.resultType, input);
-            } else if (result.resultType === ACTION_RESULT_TYPE.FETCH_ERROR) {
-                await callbacks?.onError?.(result.error, result.resultType, input);
-                await callbacks?.onSettled?.(undefined, result.error, result.resultType, input);
+                setCallbacksAreExecuting?.(ACTION_HOOK_STATUS.ERRORED);
             }
         };
 
-        executeCallbacks().catch(console.error);
+        executeCallbacks().catch((e) => {
+                setCallbacksAreExecuting?.(ACTION_HOOK_STATUS.ERRORED);
+                // eslint-disable-next-line no-console
+                console.error('Callback error: ', e);
+        });
     }, [input, result]);
 }
 
@@ -67,18 +74,20 @@ export function useAction<const ActionInput, const ActionReturnType>(
 ) {
     const [result, setResult] = useState<ActionHookOutput<ActionReturnType>>(defaultHookResult);
     const [input, setInput] = useState<ActionInput>();
-    const [isExecuting, setIsExecuting] = useState(false);
+    const [actionIsExecuting, setActionIsExecuting] = useState(false);
+    const [callbacksStatus, setCallbacksStatus] = useState<ActionHookStatus>('idle');
 
-    const status = getActionStatus(isExecuting, result);
+    const actionStatus = getActionStatus(actionIsExecuting, result);
 
     const reset = useCallback(() => {
         setResult(defaultHookResult);
+        setCallbacksStatus(ACTION_HOOK_STATUS.IDLE);
     }, []);
 
     const execute = useCallback(
         async (input: ActionInput) => {
             setInput(input);
-            setIsExecuting(true);
+            setActionIsExecuting(true);
 
             try {
                 const result = await action(input);
@@ -93,18 +102,19 @@ export function useAction<const ActionInput, const ActionReturnType>(
                     error: isError(e) ? e.message : defaultErrorMessage,
                 });
             } finally {
-                setIsExecuting(false);
+                setActionIsExecuting(false);
             }
         },
         [action],
     );
 
-    useActionCallbacks(input as ActionInput, result, callbacks);
+    useActionCallbacks(input as ActionInput, result, setCallbacksStatus, callbacks);
 
     return {
         execute,
         result,
         reset,
-        status,
+        actionStatus,
+        callbacksStatus,
     };
 }

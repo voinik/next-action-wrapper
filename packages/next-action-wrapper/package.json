@@ -6,9 +6,13 @@
     "main": "./dist/index.mjs",
     "module": "./dist/index.mjs",
     "types": "./dist/index.d.mts",
+    "type": "module",
     "files": [
         "dist"
     ],
+    "publishConfig": {
+        "access": "public"
+    },
     "exports": {
         ".": "./dist/index.mjs",
         "./hooks": "./dist/hooks.mjs"
@@ -29,7 +33,7 @@
         "node": ">=18.17"
     },
     "scripts": {
-        "lint": "tsc && eslint --ext ts .",
+        "lint": "tsc && eslint . --max-warnings 0",
         "prettify": "prettier \"./**/*.{js,jsx,ts,tsx,json,css,scss,md}\" --check",
         "prettify:fix": "prettier \"./**/*.{js,jsx,ts,tsx,json,css,scss,md}\" --write",
         "build": "tsup",
