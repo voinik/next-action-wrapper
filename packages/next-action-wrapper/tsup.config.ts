@@ -2,7 +2,7 @@ import { defineConfig } from 'tsup';
 
 export default defineConfig({
     entry: ['src/index.ts', 'src/hooks.ts'],
-    format: ['esm'],
+    format: ['esm', 'cjs'],
     clean: true,
     splitting: false,
     sourcemap: true,

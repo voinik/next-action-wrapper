@@ -1,11 +1,12 @@
 {
+    "$schema": "https://json.schemastore.org/package.json",
     "name": "next-action-wrapper",
     "version": "0.1.0",
     "description": "A wrapper for typesafe and customizable server actions for your Next.js app router projects.",
     "private": false,
-    "main": "./dist/index.mjs",
-    "module": "./dist/index.mjs",
-    "types": "./dist/index.d.mts",
+    "main": "./dist/index.js",
+    "module": "./dist/index.js",
+    "types": "./dist/index.d.ts",
     "type": "module",
     "files": [
         "dist"
@@ -14,16 +15,18 @@
         "access": "public"
     },
     "exports": {
-        ".": "./dist/index.mjs",
-        "./hooks": "./dist/hooks.mjs"
+        ".": "./dist/index.js",
+        "./hooks": "./dist/hooks.js"
     },
     "typesVersions": {
         "*": {
             ".": [
-                "./dist/index.d.mts"
+                "./dist/index.d.ts",
+                "./dist/index.d.cts"
             ],
             "hooks": [
-                "./dist/hooks.d.mts"
+                "./dist/hooks.d.ts",
+                "./dist/hooks.d.cts"
             ]
         }
     },
