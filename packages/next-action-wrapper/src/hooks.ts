@@ -38,28 +38,35 @@ function getActionStatus<const ActionReturnType>(
 function useActionCallbacks<const ActionInput, const ActionReturnType>(
     input: ActionInput,
     result: ActionHookOutput<ActionReturnType>,
-    setCallbacksAreExecuting?: React.Dispatch<React.SetStateAction<ActionHookStatus>>,
+    setCallbacksStatus?: React.Dispatch<React.SetStateAction<ActionHookStatus>>,
+    setCallbacksAreExecuting?: React.Dispatch<React.SetStateAction<boolean>>,
     callbacks?: HookCallbacks<ActionInput, ActionReturnType>,
 ) {
     useEffect(() => {
         const executeCallbacks = async () => {
             if (result.resultType === ACTION_RESULT_TYPE.SUCCESS) {
-                setCallbacksAreExecuting?.(ACTION_HOOK_STATUS.EXECUTING);
+                setCallbacksStatus?.(ACTION_HOOK_STATUS.EXECUTING);
                 await callbacks?.onSuccess?.(result.data, input);
                 await callbacks?.onSettled?.(result.data, null, null, input);
-                setCallbacksAreExecuting?.(ACTION_HOOK_STATUS.SUCCEEDED);
-            } else if (result.resultType === ACTION_RESULT_TYPE.SERVER_ERROR || result.resultType === ACTION_RESULT_TYPE.FETCH_ERROR) {
-                setCallbacksAreExecuting?.(ACTION_HOOK_STATUS.EXECUTING);
+                setCallbacksStatus?.(ACTION_HOOK_STATUS.SUCCEEDED);
+                setCallbacksAreExecuting?.(false);
+            } else if (
+                result.resultType === ACTION_RESULT_TYPE.SERVER_ERROR ||
+                result.resultType === ACTION_RESULT_TYPE.FETCH_ERROR
+            ) {
+                setCallbacksStatus?.(ACTION_HOOK_STATUS.EXECUTING);
                 await callbacks?.onError?.(result.error, result.resultType, input);
                 await callbacks?.onSettled?.(undefined, result.error, result.resultType, input);
-                setCallbacksAreExecuting?.(ACTION_HOOK_STATUS.ERRORED);
+                setCallbacksStatus?.(ACTION_HOOK_STATUS.ERRORED);
+                setCallbacksAreExecuting?.(false);
             }
         };
 
-        executeCallbacks().catch((e) => {
-                setCallbacksAreExecuting?.(ACTION_HOOK_STATUS.ERRORED);
-                // eslint-disable-next-line no-console
-                console.error('Callback error: ', e);
+        executeCallbacks().catch(e => {
+            setCallbacksStatus?.(ACTION_HOOK_STATUS.ERRORED);
+            setCallbacksAreExecuting?.(false);
+            // eslint-disable-next-line no-console
+            console.error('Callback error: ', e);
         });
     }, [input, result]);
 }
@@ -76,12 +83,17 @@ export function useAction<const ActionInput, const ActionReturnType>(
     const [input, setInput] = useState<ActionInput>();
     const [actionIsExecuting, setActionIsExecuting] = useState(false);
     const [callbacksStatus, setCallbacksStatus] = useState<ActionHookStatus>('idle');
+    const [callbacksAreExecuting, setCallbacksAreExecuting] = useState(false);
 
     const actionStatus = getActionStatus(actionIsExecuting, result);
+    const isExecuting = actionIsExecuting || callbacksAreExecuting;
 
     const reset = useCallback(() => {
         setResult(defaultHookResult);
         setCallbacksStatus(ACTION_HOOK_STATUS.IDLE);
+        setInput(undefined);
+        setActionIsExecuting(false);
+        setCallbacksAreExecuting(false);
     }, []);
 
     const execute = useCallback(
@@ -92,6 +104,9 @@ export function useAction<const ActionInput, const ActionReturnType>(
             try {
                 const result = await action(input);
                 setResult(result ?? defaultHookResult);
+                if (callbacks?.onSuccess !== undefined || callbacks?.onSettled !== undefined) {
+                    setCallbacksAreExecuting(true);
+                }
             } catch (e) {
                 if (isRedirectError(e) || isNotFoundError(e)) {
                     throw e;
@@ -101,6 +116,9 @@ export function useAction<const ActionInput, const ActionReturnType>(
                     resultType: ACTION_RESULT_TYPE.FETCH_ERROR,
                     error: isError(e) ? e.message : defaultErrorMessage,
                 });
+                if (callbacks?.onError !== undefined || callbacks?.onSettled !== undefined) {
+                    setCallbacksAreExecuting(true);
+                }
             } finally {
                 setActionIsExecuting(false);
             }
@@ -108,13 +126,24 @@ export function useAction<const ActionInput, const ActionReturnType>(
         [action],
     );
 
-    useActionCallbacks(input as ActionInput, result, setCallbacksStatus, callbacks);
+    useActionCallbacks(input as ActionInput, result, setCallbacksStatus, setCallbacksAreExecuting, callbacks);
 
     return {
+        /** Calling this will execute the function with the passed parameters */
         execute,
+        /** The result of the action */
         result,
+        /** Resets all statuses */
         reset,
+        /** The status of the action */
         actionStatus,
+        /** The status of the callbacks */
         callbacksStatus,
+        /** Whether the action is executing */
+        actionIsExecuting,
+        /** Whether any of the callbacks are executing */
+        callbacksAreExecuting,
+        /** Whether the action or any of the callbacks are executing */
+        isExecuting,
     };
 }
