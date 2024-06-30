@@ -37,6 +37,7 @@ function getActionStatus<const ActionReturnType>(
 
 function useActionCallbacks<const ActionInput, const ActionReturnType>(
     input: ActionInput,
+    actionStatus: ActionHookStatus,
     result: ActionHookOutput<ActionReturnType>,
     setCallbacksStatus?: React.Dispatch<React.SetStateAction<ActionHookStatus>>,
     setCallbacksAreExecuting?: React.Dispatch<React.SetStateAction<boolean>>,
@@ -44,15 +45,16 @@ function useActionCallbacks<const ActionInput, const ActionReturnType>(
 ) {
     useEffect(() => {
         const executeCallbacks = async () => {
-            if (result.resultType === ACTION_RESULT_TYPE.SUCCESS) {
+            if (actionStatus === ACTION_HOOK_STATUS.SUCCEEDED && result.resultType === ACTION_RESULT_TYPE.SUCCESS) {
                 setCallbacksStatus?.(ACTION_HOOK_STATUS.EXECUTING);
                 await callbacks?.onSuccess?.(result.data, input);
                 await callbacks?.onSettled?.(result.data, null, null, input);
                 setCallbacksStatus?.(ACTION_HOOK_STATUS.SUCCEEDED);
                 setCallbacksAreExecuting?.(false);
             } else if (
-                result.resultType === ACTION_RESULT_TYPE.SERVER_ERROR ||
-                result.resultType === ACTION_RESULT_TYPE.FETCH_ERROR
+                actionStatus === ACTION_HOOK_STATUS.ERRORED &&
+                (result.resultType === ACTION_RESULT_TYPE.SERVER_ERROR ||
+                    result.resultType === ACTION_RESULT_TYPE.FETCH_ERROR)
             ) {
                 setCallbacksStatus?.(ACTION_HOOK_STATUS.EXECUTING);
                 await callbacks?.onError?.(result.error, result.resultType, input);
@@ -126,7 +128,14 @@ export function useAction<const ActionInput, const ActionReturnType>(
         [action],
     );
 
-    useActionCallbacks(input as ActionInput, result, setCallbacksStatus, setCallbacksAreExecuting, callbacks);
+    useActionCallbacks(
+        input as ActionInput,
+        actionStatus,
+        result,
+        setCallbacksStatus,
+        setCallbacksAreExecuting,
+        callbacks,
+    );
 
     return {
         /** Calling this will execute the function with the passed parameters */
