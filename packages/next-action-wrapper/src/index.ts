@@ -1,6 +1,4 @@
-import { isNotFoundError } from 'next/dist/client/components/not-found';
-import { isRedirectError } from 'next/dist/client/components/redirect';
-
+import { isFrameworkError } from './nextErrors';
 import { type ActionServerOutput, type MaybePromise, type ServerAction, type WrappedServerAction } from './types';
 import { DEFAULT_SERVER_ERROR, isError } from './utils';
 
@@ -34,7 +32,8 @@ export function createActionClient(options?: CreateActionClientOptions) {
                 const data = await serverAction(actionInput);
                 return { resultType: 'success', data };
             } catch (e) {
-                if (isRedirectError(e) || isNotFoundError(e)) {
+                // If an internal framework error occurred, throw it, so it will be processed by Next.js.
+                if  (isFrameworkError(e)) {
                     throw e;
                 }
 

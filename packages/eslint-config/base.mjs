@@ -1,7 +1,6 @@
 import { resolve } from 'node:path';
 import eslint from '@eslint/js';
 import tseslint from 'typescript-eslint';
-import importPlugin from 'eslint-plugin-import';
 import globals from 'globals';
 import parser from '@typescript-eslint/parser';
 
@@ -44,34 +43,12 @@ const config = tseslint.config(
         },
     },
     {
-        plugins: { import: importPlugin },
-        rules: {
-            'import/order': [
-                'warn',
-                {
-                    'newlines-between': 'always',
-                    groups: ['builtin', 'external', 'internal', 'parent', 'sibling', 'index'],
-                    alphabetize: { order: 'asc', caseInsensitive: true },
-                },
-            ],
-        },
-    },
-    {
         rules: {
             'no-console': 'warn',
             'no-undef': 'off',
-            'import/order': [
-                'warn',
-                {
-                    'newlines-between': 'always',
-                    groups: ['builtin', 'external', 'internal', 'parent', 'sibling', 'index'],
-                    alphabetize: { order: 'asc', caseInsensitive: true },
-                },
-            ],
             'sort-imports': ['warn', { ignoreCase: true, ignoreDeclarationSort: true }],
             '@typescript-eslint/switch-exhaustiveness-check': 'error',
             '@typescript-eslint/no-floating-promises': 'error',
-            '@typescript-eslint/ban-types': 'error',
             '@typescript-eslint/no-explicit-any': 'error',
             '@typescript-eslint/array-type': ['error', { default: 'generic', readonly: 'generic' }],
             '@typescript-eslint/consistent-type-definitions': 'off',

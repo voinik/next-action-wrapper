@@ -8,12 +8,12 @@
     "./react": "./react.mjs"
   },
   "devDependencies": {
-    "@eslint/js": "^9.1.1",
-    "@next/eslint-plugin-next": "^14.2.3",
+    "@eslint/js": "^9.19.0",
+    "@next/eslint-plugin-next": "^15.1.6",
     "@repo/typescript-config": "workspace:*",
-    "@typescript-eslint/eslint-plugin": "^7.7.1",
-    "@typescript-eslint/parser": "^7.7.1",
-    "eslint-config-turbo": "^1.13.3",
+    "@typescript-eslint/eslint-plugin": "^8.23.0",
+    "@typescript-eslint/parser": "^8.23.0",
+    "eslint-config-turbo": "^2.4.0",
     "eslint-plugin-only-warn": "^1.1.0"
   }
 }

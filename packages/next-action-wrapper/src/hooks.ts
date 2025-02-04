@@ -1,8 +1,6 @@
 'use client';
 
-import { isNotFoundError } from 'next/dist/client/components/not-found';
-import { isRedirectError } from 'next/dist/client/components/redirect';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, useTransition } from 'react';
 
 import {
     ACTION_HOOK_STATUS,
@@ -81,6 +79,7 @@ export function useAction<const ActionInput, const ActionReturnType>(
     action: WrappedServerAction<ActionInput, ActionReturnType>,
     callbacks?: HookCallbacks<ActionInput, ActionReturnType>,
 ) {
+    const [isTransitioning, startTransition] = useTransition();
     const [result, setResult] = useState<ActionHookOutput<ActionReturnType>>(defaultHookResult);
     const [input, setInput] = useState<ActionInput>();
     const [actionIsExecuting, setActionIsExecuting] = useState(false);
@@ -99,31 +98,35 @@ export function useAction<const ActionInput, const ActionReturnType>(
     }, []);
 
     const execute = useCallback(
-        async (input: ActionInput) => {
+        (input: ActionInput) => {
             setInput(input);
             setActionIsExecuting(true);
 
-            try {
-                const result = await action(input);
-                setResult(result ?? defaultHookResult);
-                if (callbacks?.onSuccess !== undefined || callbacks?.onSettled !== undefined) {
-                    setCallbacksAreExecuting(true);
+            startTransition(async () => {
+                try {
+                    const result = await action(input);
+                    startTransition(() => {
+                        setResult(result ?? defaultHookResult);
+                        if (callbacks?.onSuccess !== undefined || callbacks?.onSettled !== undefined) {
+                            setCallbacksAreExecuting(true);
+                        }
+                    });
+                } catch (e) {
+                    startTransition(() => {
+                        setResult({
+                            resultType: ACTION_RESULT_TYPE.FETCH_ERROR,
+                            error: isError(e) ? e.message : defaultErrorMessage,
+                        });
+                        if (callbacks?.onError !== undefined || callbacks?.onSettled !== undefined) {
+                            setCallbacksAreExecuting(true);
+                        }
+                    });
+                } finally {
+                    startTransition(() => {
+                        setActionIsExecuting(false);
+                    });
                 }
-            } catch (e) {
-                if (isRedirectError(e) || isNotFoundError(e)) {
-                    throw e;
-                }
-
-                setResult({
-                    resultType: ACTION_RESULT_TYPE.FETCH_ERROR,
-                    error: isError(e) ? e.message : defaultErrorMessage,
-                });
-                if (callbacks?.onError !== undefined || callbacks?.onSettled !== undefined) {
-                    setCallbacksAreExecuting(true);
-                }
-            } finally {
-                setActionIsExecuting(false);
-            }
+            });
         },
         [action],
     );
@@ -154,5 +157,7 @@ export function useAction<const ActionInput, const ActionReturnType>(
         callbacksAreExecuting,
         /** Whether the action or any of the callbacks are executing */
         isExecuting,
+        /** Whether the underlying React Transition is still going */
+        isTransitioning,
     };
 }
