@@ -131,6 +131,47 @@ export function useAction<const ActionInput, const ActionReturnType>(
         [action],
     );
 
+    const executeAsync = useCallback(
+        (input: ActionInput) => {
+            const fn = new Promise<Awaited<ReturnType<typeof action>>>((resolve, reject) => {
+                setInput(input);
+                setActionIsExecuting(true);
+
+                startTransition(async () => {
+                    try {
+                        const result = await action(input);
+                        startTransition(() => {
+                            setResult(result ?? defaultHookResult);
+                            if (callbacks?.onSuccess !== undefined || callbacks?.onSettled !== undefined) {
+                                setCallbacksAreExecuting(true);
+                            }
+                            resolve(result);
+                        });
+                    } catch (e) {
+                        startTransition(() => {
+                            setResult({
+                                resultType: ACTION_RESULT_TYPE.FETCH_ERROR,
+                                error: isError(e) ? e.message : defaultErrorMessage,
+                            });
+                            if (callbacks?.onError !== undefined || callbacks?.onSettled !== undefined) {
+                                setCallbacksAreExecuting(true);
+                            }
+
+                            reject(e instanceof Error ? e : new Error(defaultErrorMessage));
+                        });
+                    } finally {
+                        startTransition(() => {
+                            setActionIsExecuting(false);
+                        });
+                    }
+                });
+            });
+
+            return fn;
+        },
+        [action],
+    );
+
     useActionCallbacks(
         input as ActionInput,
         actionStatus,
@@ -143,6 +184,8 @@ export function useAction<const ActionInput, const ActionReturnType>(
     return {
         /** Calling this will execute the function with the passed parameters */
         execute,
+        /** Calling this will execute the function with the passed parameters in a promise and return the result */
+        executeAsync,
         /** The result of the action */
         result,
         /** Resets all statuses */
